@@ -25,10 +25,9 @@ function() {
 }
 
 #* Rota para inserir um novo registro
-#* @param x valor do preditor (numerérico)
+#* @param x valor do preditor (numérico)
 #* @param grupo grupo (A, B ou C)
 #* @param y valor da resposta (numérico)
-#* @serializer csv
 #* @post /novoregistro
 function(x, grupo, y) {
   readr::read_csv(df, file = "dados.csv")
@@ -56,7 +55,7 @@ function(x, grupo, y) {
 function(id, x, grupo, y) {
   readr::read_csv(df, file = "dados.csv")
   # Modifica o registro correspondente
-  df[id,] = data.frame(x, grupo, y)
+  df[id,] = data.frame(x, grupo, y, momento_registro = lubridate::now(tzone="America/Sao_Paulo"))
   # Atualiza o modelo
   modelo <- lm(y ~ x + grupo, data = df)
   
@@ -71,9 +70,7 @@ function(id, x, grupo, y) {
 #* @put /deletar
 function(id) {
   readr::read_csv(df, file = "dados.csv")
-  df <- df[-id,]
-  # Atualiza o modelo
-  modelo <- lm(y ~ x + grupo, data = df)
+  df <- df[-as.numeric(id),]
   
   # Salva os dados atualizados
   readr::write_csv(df, "dados.csv")
