@@ -47,5 +47,37 @@ function(x, grupo, y) {
   return(print("Registro inserido com sucesso"))
 }
 
+#* Rota para modificar um registro
+#* @param id número da linha a ser modificada
+#* @param x novo valor do preditor (numérico)
+#* @param grupo novo valor do grupo (A, B ou C)
+#* @param y novo valor da resposta (numérico)
+#* @put /modificar
+function(id, x, grupo, y) {
+  readr::read_csv(df, file = "dados.csv")
+  # Modifica o registro correspondente
+  df[id,] = data.frame(x, grupo, y)
+  # Atualiza o modelo
+  modelo <- lm(y ~ x + grupo, data = df)
+  
+  # Salva os dados atualizados
+  readr::write_csv(df, "dados.csv")
+  
+  return(print("Registro modificado com sucesso"))
+}
 
+#* Rota para modificar um registro
+#* @param id número da linha a ser deletada
+#* @put /deletar
+function(id) {
+  readr::read_csv(df, file = "dados.csv")
+  df <- df[-id,]
+  # Atualiza o modelo
+  modelo <- lm(y ~ x + grupo, data = df)
+  
+  # Salva os dados atualizados
+  readr::write_csv(df, "dados.csv")
+  
+  return(print("Registro deletado com sucesso"))
+}
 
