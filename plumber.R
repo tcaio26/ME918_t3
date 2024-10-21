@@ -1,6 +1,8 @@
 library(plumber)
 library(dplyr)
 library(ggplot2) 
+library(stringr)
+library(jsonlite)
 
 #* @apiTitle API para Regressão Linear
 ra <- 217505
@@ -77,6 +79,20 @@ function(id) {
   readr::write_csv(df, "dados.csv")
   
   return(print("Registro deletado com sucesso"))
+}
+
+#* Rota para predição de valores
+#* @serializer json
+#* @param x Valores de x, no formato [x1, x2, ...]
+#* @param grupo Grupo das variáveis, no formato [G1, G2, ...]
+#* @get /predicao
+function(x, grupo){
+  modelo <- lm(y ~ x + grupo, data = df)
+  print(c(x, grupo))
+  x = as.numeric(fromJSON(x))
+  grupo=fromJSON(str_replace_all(grupo, c(','='","', '\\['='["', '\\]'='"]','\n'='')))
+  predicao = predict(modelo, data.frame(x, grupo))
+  return(valores_preditos = predicao)
 }
 
 #* Gráfico
