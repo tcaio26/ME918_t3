@@ -1,5 +1,6 @@
 library(plumber)
 library(dplyr)
+library(ggplot2) 
 
 #* @apiTitle API para Regressão Linear
 ra <- 217505
@@ -76,5 +77,78 @@ function(id) {
   readr::write_csv(df, "dados.csv")
   
   return(print("Registro deletado com sucesso"))
+}
+
+#* Gráfico
+#* @get /grafico
+#* @serializer png
+function() {
+  readr::read_csv(df, file = "dados.csv")
+  grafico<-ggplot(data = df, aes(x = x, y = y, colour = grupo)) + 
+    geom_point()+
+    geom_smooth(method = "lm", se = FALSE) +  
+    labs(title = "Gráfico de Regressão Linear",
+         x = "X",
+         y = "Y")+
+    theme_bw()
+  return(print(grafico))
+}
+
+#* Rota para obter as estimativas dos parâmetros da regressão
+#* @get /estimativasJson
+#* @serializer json
+function() {
+  readr::read_csv(df, file = "dados.csv")
+  modelo <- lm(y ~ x + grupo, data = df)
+  estimativas <- summary(modelo)$coefficients[,1]
+  return(as.data.frame(estimativas))
+}
+
+#* Rota para obter todos os resíduos do modelo de regressão em formato JSON
+#* @get /residuosJson
+#* @serializer json
+function() {
+  readr::read_csv(df, file = "dados.csv")
+  modelo <- lm(y ~ x + grupo, data = df)
+  residuos <- modelo$residuals
+  return(data.frame(residuos = residuos))
+}
+
+#* Rota para obter um gráfico de resíduos
+#* @get /grafico_residuos
+#* @serializer png
+function() {
+  readr::read_csv(df, file = "dados.csv")
+  modelo <- lm(y ~ x + grupo, data = df)
+  residuos <- modelo$residuals
+  df_residuos <- data.frame(x = df$y, residuos = residuos)
+  
+  grafico_residuos <- ggplot(data = df_residuos, aes(x = x, y = residuos)) + 
+    geom_point() + 
+    geom_hline(yintercept = 0, linetype = "dashed", color = "red")  +
+    theme_bw() +
+    labs(title = "Gráfico de Resíduos",
+         x = "Valores observados",
+         y = "Resíduos")
+  return(print(grafico_residuos))
+}
+
+
+#* Rota para obter informações sobre a significância estatística dos parâmetros
+#* @param alpha Nível de significância 
+#* @get /significancia
+#* @serializer json
+function(alpha = 0.05) {
+  readr::read_csv(df, file = "dados.csv")
+  modelo <- lm(y ~ x + grupo, data = df)
+  resumo <- summary(modelo)
+  parametros <- as.data.frame(resumo$coefficients)
+
+  df_sig <- data.frame(parametros = rownames(parametros), 
+                      p_valor = parametros[, 4],
+                      significativo = ifelse(parametros[, 4] < alpha, "significativo", "não significativo"))
+  
+  # Retornar os resultados como JSON
+  return(df_sig)
 }
 
