@@ -33,10 +33,12 @@ function() {
 #* @param y valor da resposta (numérico)
 #* @post /novoregistro
 function(x, grupo, y) {
+  grupo = toupper(grupo)
   readr::read_csv(df, file = "dados.csv")
-  if (!grupo %in% c("A", "B", "C")) {
+  if (!grupo %in% LETTERS[1:3]) {
     return(list(error = "Grupo deve ser A, B ou C"))
   }
+  if(!(is.numeric(x)&is.numeric(y))) return(list(error = "x e y devem ser numéricas"))
  df <- rbind(df, data.frame(x = as.numeric(x), 
                           grupo = grupo,
                           y = as.numeric(y),
@@ -56,6 +58,10 @@ function(x, grupo, y) {
 #* @param y novo valor da resposta (numérico)
 #* @put /modificar
 function(id, x, grupo, y) {
+  if (!grupo %in% LETTERS[1:3]) {
+    return(list(error = "Grupo deve ser A, B ou C"))
+  }
+  if(!(is.numeric(x)&is.numeric(y))) return(list(error = "x e y devem ser numéricas"))
   readr::read_csv(df, file = "dados.csv")
   # Modifica o registro correspondente
   df[id,] = data.frame(x, grupo, y, momento_registro = lubridate::now(tzone="America/Sao_Paulo"))
@@ -68,7 +74,7 @@ function(id, x, grupo, y) {
   return(print("Registro modificado com sucesso"))
 }
 
-#* Rota para modificar um registro
+#* Rota para deletar um registro
 #* @param id número da linha a ser deletada
 #* @put /deletar
 function(id) {
