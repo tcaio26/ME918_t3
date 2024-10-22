@@ -133,7 +133,7 @@ function() {
   readr::read_csv(df, file = "dados.csv")
   modelo <- lm(y ~ x + grupo, data = df)
   residuos <- modelo$residuals
-  return(data.frame(residuos = residuos))
+  return(residuos)
 }
 
 #* Rota para obter um gráfico de resíduos
