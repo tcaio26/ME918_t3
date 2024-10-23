@@ -95,14 +95,12 @@ A API utiliza as seguintes bibliotecas R: - `plumber` - `dplyr` - `ggplot2` - `s
 install.packages(c("plumber", "dplyr", "ggplot2", "stringr", "jsonlite", "lubridate", "readr"))
 ```
 
-2.  Salve o código da API em um arquivo, por exemplo, `api.R`.
+2.  Salve o código da API em um arquivo, por exemplo, `plumber.R`.
 
 3.  Inicie a API:
 
 ```{r}
- library(plumber)
-  r <- plumb("api.R")
-  r$run()
+ plumber::plumb(file='plumber.R')$run()
 ```
 
 ## Exemplo
