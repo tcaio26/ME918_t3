@@ -24,7 +24,8 @@ modelo <- lm(y ~ x + grupo, data = df)
 #* @get /dados
 #* @serializer csv
 function() {
-  df
+  df = readr::read_csv('dados.csv')
+  return(df)
 }
 
 #* Rota para inserir um novo registro
