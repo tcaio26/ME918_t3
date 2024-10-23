@@ -34,12 +34,12 @@ function() {
 #* @post /novoregistro
 function(x, grupo, y) {
   grupo = toupper(grupo)
-  readr::read_csv(df, file = "dados.csv")
+  df = readr::read_csv("dados.csv")
   if (!grupo %in% LETTERS[1:3]) {
     return(list(error = "Grupo deve ser A, B ou C"))
   }
-  if(!(is.numeric(x)&is.numeric(y))) return(list(error = "x e y devem ser numéricas"))
- df <- rbind(df, data.frame(x = as.numeric(x), 
+  if(is.na(as.numeric(x))|is.na(as.numeric(y))) return(list(error = "x e y devem ser numéricas"))
+  df <- rbind(df, data.frame(x = as.numeric(x), 
                           grupo = grupo,
                           y = as.numeric(y),
                           momento_registro = lubridate::now(tzone="America/Sao_Paulo")))
@@ -62,7 +62,7 @@ function(id, x, grupo, y) {
     return(list(error = "Grupo deve ser A, B ou C"))
   }
   if(!(is.numeric(x)&is.numeric(y))) return(list(error = "x e y devem ser numéricas"))
-  readr::read_csv(df, file = "dados.csv")
+  df = readr::read_csv(file = "dados.csv")
   # Modifica o registro correspondente
   df[id,] = data.frame(x, grupo, y, momento_registro = lubridate::now(tzone="America/Sao_Paulo"))
   # Atualiza o modelo
@@ -78,7 +78,7 @@ function(id, x, grupo, y) {
 #* @param id número da linha a ser deletada
 #* @put /deletar
 function(id) {
-  readr::read_csv(df, file = "dados.csv")
+  df = readr::read_csv(file = "dados.csv")
   df <- df[-as.numeric(id),]
   
   # Salva os dados atualizados
@@ -105,7 +105,7 @@ function(x, grupo){
 #* @get /grafico
 #* @serializer png
 function() {
-  readr::read_csv(df, file = "dados.csv")
+  df = readr::read_csv(file = "dados.csv")
   grafico<-ggplot(data = df, aes(x = x, y = y, colour = grupo)) + 
     geom_point()+
     geom_smooth(method = "lm", se = FALSE) +  
@@ -120,7 +120,7 @@ function() {
 #* @get /estimativasJson
 #* @serializer json
 function() {
-  readr::read_csv(df, file = "dados.csv")
+  df = readr::read_csv(file = "dados.csv")
   modelo <- lm(y ~ x + grupo, data = df)
   estimativas <- summary(modelo)$coefficients[,1]
   return(as.data.frame(estimativas))
@@ -130,7 +130,7 @@ function() {
 #* @get /residuosJson
 #* @serializer json
 function() {
-  readr::read_csv(df, file = "dados.csv")
+  df = readr::read_csv(file = "dados.csv")
   modelo <- lm(y ~ x + grupo, data = df)
   residuos <- modelo$residuals
   return(residuos)
@@ -140,7 +140,7 @@ function() {
 #* @get /grafico_residuos
 #* @serializer png
 function() {
-  readr::read_csv(df, file = "dados.csv")
+  df = readr::read_csv(file = "dados.csv")
   modelo <- lm(y ~ x + grupo, data = df)
   residuos <- modelo$residuals
   df_residuos <- data.frame(x = df$y, residuos = residuos)
@@ -161,7 +161,7 @@ function() {
 #* @get /significancia
 #* @serializer json
 function(alpha = 0.05) {
-  readr::read_csv(df, file = "dados.csv")
+  df = readr::read_csv(file = "dados.csv")
   modelo <- lm(y ~ x + grupo, data = df)
   resumo <- summary(modelo)
   parametros <- as.data.frame(resumo$coefficients)
