@@ -104,3 +104,43 @@ install.packages(c("plumber", "dplyr", "ggplot2", "stringr", "jsonlite", "lubrid
 ```
 
 ## Exemplo
+
+Requisição para inserir um novo registro:
+
+```{r}
+request("http://127.0.0.1:6366/novoregistro") |> 
+  req_method("POST") |>
+  req_body_json(list(x = 5, grupo = "A", y = 10)) |>
+  req_perform()
+```
+
+#\> [1] "Registro inserido com sucesso"
+
+Requisição para modificar um registro:
+
+```{r}
+request("http://127.0.0.1:6366/modificar") |>
+  req_method("PUT") |>
+  req_body_json(list(id = 1, x = 6, grupo = "B", y = 12)) |>
+  req_perform()
+```
+
+#\> [1] "Registro modificado com sucesso"
+
+Requisição para deletar um registro:
+
+```{r}
+ request("http://127.0.0.1:6366/deletar") |>
+  req_method("PUT") |>
+  req_body_json(list(id = 1)) |>
+  req_perform()
+```
+
+#\> [1] "Registro deletado com sucesso"
+
+Requisição para predizer uma nova observação atráves do navegador web:
+
+`<http://127.0.0.1:6366/predicao?x=%5B2%2C3%5D&grupo=%5BA%2CB%5D>`
+
+#\> [-0.1621, 3.0776]
+
